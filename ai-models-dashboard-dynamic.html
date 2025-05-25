@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Models Dashboard - Dynamic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.5rem;
+            margin: 50px 0;
+        }
+
+        .error {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px auto;
+            max-width: 600px;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .category {
+            margin-bottom: 50px;
+        }
+
+        .category-title {
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            padding: 0 20px;
+        }
+
+        .model-card {
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .model-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .model-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        /* Company-specific styling */
+        .openai {
+            background: linear-gradient(135deg, #74aa9c 0%, #2d5a4a 100%);
+            color: white;
+        }
+
+        .openai::before {
+            background: #10a37f;
+        }
+
+        .google {
+            background: linear-gradient(135deg, #4285f4 0%, #1a73e8 100%);
+            color: white;
+        }
+
+        .google::before {
+            background: linear-gradient(90deg, #ea4335, #fbbc04, #34a853, #4285f4);
+        }
+
+        .anthropic {
+            background: linear-gradient(135deg, #d4a574 0%, #b8956a 100%);
+            color: white;
+        }
+
+        .anthropic::before {
+            background: #d4a574;
+        }
+
+        .meta {
+            background: linear-gradient(135deg, #0866ff 0%, #1877f2 100%);
+            color: white;
+        }
+
+        .meta::before {
+            background: linear-gradient(90deg, #0866ff, #00d4ff);
+        }
+
+        .microsoft {
+            background: linear-gradient(135deg, #0078d4 0%, #106ebe 100%);
+            color: white;
+        }
+
+        .microsoft::before {
+            background: linear-gradient(90deg, #f25022, #7fba00, #00a4ef, #ffb900);
+        }
+
+        .stability {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .stability::before {
+            background: #8b5cf6;
+        }
+
+        .model-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .company-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .model-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .company-name {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .model-description {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .model-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .model-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .hf-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            text-decoration: none;
+            color: inherit;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .hf-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .models-grid {
+                grid-template-columns: 1fr;
+                padding: 0 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .model-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>🤖 AI Models Dashboard</h1>
+        <p>Live data from Hugging Face Hub</p>
+    </div>
+
+    <div id="loading" class="loading">
+        <div>Loading models from Hugging Face...</div>
+    </div>
+
+    <div id="error" class="error" style="display: none;">
+        <h3>Error Loading Data</h3>
+        <p>Unable to fetch model data. Please check if the backend server is running.</p>
+        <button onclick="loadModels()"
+            style="margin-top: 10px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">Retry</button>
+    </div>
+
+    <div id="dashboard" class="dashboard" style="display: none;">
+        <!-- Content will be populated by JavaScript -->
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+
+        const categoryConfig = {
+            'language_models': {
+                title: '💬 Large Language Models',
+                companyMap: {
+                    'OpenAI': 'openai',
+                    'Google': 'google',
+                    'Anthropic': 'anthropic',
+                    'Meta': 'meta'
+                }
+            },
+            'image_models': {
+                title: '🎨 Image Generation',
+                companyMap: {
+                    'Stability AI': 'stability',
+                    'OpenAI': 'openai'
+                }
+            },
+            'code_models': {
+                title: '💻 Code Generation',
+                companyMap: {
+                    'Microsoft': 'microsoft',
+                    'Anthropic': 'anthropic'
+                }
+            }
+        };
+
+        function getCompanyLogo(company) {
+            const logos = {
+                'OpenAI': '🤖',
+                'Google': 'G',
+                'Anthropic': 'A',
+                'Meta': 'M',
+                'Microsoft': '⚡',
+                'Stability AI': 'S'
+            };
+            return logos[company] || '🔬';
+        }
+
+        function formatNumber(num) {
+            if (num === 'N/A' || !num) return 'N/A';
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        function createModelCard(model, category) {
+            const config = categoryConfig[category];
+            const companyClass = config.companyMap[model.company] || 'default';
+
+            return `
+                <div class="model-card ${companyClass}" onclick="openHuggingFaceLink('${model.hf_id}')">
+                    <div class="model-header">
+                        <div class="company-logo">${getCompanyLogo(model.company)}</div>
+                        <div>
+                            <div class="model-name">${model.display_name}</div>
+                            <div class="company-name">${model.company}</div>
+                        </div>
+                    </div>
+                    <div class="model-description">
+                        ${model.description || 'Advanced AI model with cutting-edge capabilities and performance.'}
+                    </div>
+                    <div class="model-stats">
+                        <div class="stat">
+                            <div class="stat-value">${formatNumber(model.downloads)}</div>
+                            <div class="stat-label">Downloads</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">${formatNumber(model.likes)}</div>
+                            <div class="stat-label">Likes</div>
+                        </div>
+                    </div>
+                    <div class="model-tags">
+                        ${model.tags.slice(0, 3).map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        ${model.model_size !== 'N/A' ? `<span class="tag">${model.model_size}</span>` : ''}
+                    </div>
+                    <a href="https://huggingface.co/${model.hf_id}" target="_blank" class="hf-link" onclick="event.stopPropagation()">
+                        🤗 View on Hugging Face
+                    </a>
+                </div>
+            `;
+        }
+
+        function openHuggingFaceLink(modelId) {
+            window.open(`https://huggingface.co/${modelId}`, '_blank');
+        }
+
+        async function loadModels() {
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('error');
+            const dashboardEl = document.getElementById('dashboard');
+
+            loadingEl.style.display = 'block';
+            errorEl.style.display = 'none';
+            dashboardEl.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE}/models`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                let dashboardHTML = '';
+
+                Object.keys(categoryConfig).forEach(category => {
+                    if (data[category] && data[category].length > 0) {
+                        const config = categoryConfig[category];
+                        dashboardHTML += `
+                            <div class="category">
+                                <h2 class="category-title">${config.title}</h2>
+                                <div class="models-grid">
+                                    ${data[category].map(model => createModelCard(model, category)).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                dashboardEl.innerHTML = dashboardHTML;
+
+                loadingEl.style.display = 'none';
+                dashboardEl.style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading models:', error);
+                loadingEl.style.display = 'none';
+                errorEl.style.display = 'block';
+            }
+        }
+
+        // Load models when page loads
+        document.addEventListener('DOMContentLoaded', loadModels);
+    </script>
+</body>
+
+</html>

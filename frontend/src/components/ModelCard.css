@@ -1,0 +1,176 @@
+.model-card {
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.model-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.model-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+/* Company-specific styling */
+.openai {
+    background: linear-gradient(135deg, #74aa9c 0%, #2d5a4a 100%);
+    color: white;
+}
+
+.openai::before {
+    background: #10a37f;
+}
+
+.google {
+    background: linear-gradient(135deg, #4285f4 0%, #1a73e8 100%);
+    color: white;
+}
+
+.google::before {
+    background: linear-gradient(90deg, #ea4335, #fbbc04, #34a853, #4285f4);
+}
+
+.anthropic {
+    background: linear-gradient(135deg, #d4a574 0%, #b8956a 100%);
+    color: white;
+}
+
+.anthropic::before {
+    background: #d4a574;
+}
+
+.meta {
+    background: linear-gradient(135deg, #0866ff 0%, #1877f2 100%);
+    color: white;
+}
+
+.meta::before {
+    background: linear-gradient(90deg, #0866ff, #00d4ff);
+}
+
+.microsoft {
+    background: linear-gradient(135deg, #0078d4 0%, #106ebe 100%);
+    color: white;
+}
+
+.microsoft::before {
+    background: linear-gradient(90deg, #f25022, #7fba00, #00a4ef, #ffb900);
+}
+
+.stability {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+}
+
+.stability::before {
+    background: #8b5cf6;
+}
+
+.model-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.company-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.model-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.company-name {
+    opacity: 0.8;
+    font-size: 0.9rem;
+}
+
+.model-description {
+    margin-bottom: 20px;
+    line-height: 1.6;
+    opacity: 0.9;
+}
+
+.model-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.stat {
+    text-align: center;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+}
+
+.stat-value {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.model-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.tag {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    backdrop-filter: blur(10px);
+}
+
+.hf-link {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    text-decoration: none;
+    color: inherit;
+    font-size: 0.9rem;
+    transition: background 0.3s ease;
+}
+
+.hf-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+    .model-card {
+        padding: 20px;
+    }
+}

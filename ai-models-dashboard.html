@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Models Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .category {
+            margin-bottom: 50px;
+        }
+
+        .category-title {
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            padding: 0 20px;
+        }
+
+        .model-card {
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .model-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .model-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        /* OpenAI Branding */
+        .openai {
+            background: linear-gradient(135deg, #74aa9c 0%, #2d5a4a 100%);
+            color: white;
+        }
+
+        .openai::before {
+            background: #10a37f;
+        }
+
+        /* Google Branding */
+        .google {
+            background: linear-gradient(135deg, #4285f4 0%, #1a73e8 100%);
+            color: white;
+        }
+
+        .google::before {
+            background: linear-gradient(90deg, #ea4335, #fbbc04, #34a853, #4285f4);
+        }
+
+        /* Anthropic Branding */
+        .anthropic {
+            background: linear-gradient(135deg, #d4a574 0%, #b8956a 100%);
+            color: white;
+        }
+
+        .anthropic::before {
+            background: #d4a574;
+        }
+
+        /* Meta Branding */
+        .meta {
+            background: linear-gradient(135deg, #0866ff 0%, #1877f2 100%);
+            color: white;
+        }
+
+        .meta::before {
+            background: linear-gradient(90deg, #0866ff, #00d4ff);
+        }
+
+        /* Microsoft Branding */
+        .microsoft {
+            background: linear-gradient(135deg, #0078d4 0%, #106ebe 100%);
+            color: white;
+        }
+
+        .microsoft::before {
+            background: linear-gradient(90deg, #f25022, #7fba00, #00a4ef, #ffb900);
+        }
+
+        /* Mistral Branding */
+        .mistral {
+            background: linear-gradient(135deg, #ff7000 0%, #e55a00 100%);
+            color: white;
+        }
+
+        .mistral::before {
+            background: #ff7000;
+        }
+
+        /* Cohere Branding */
+        .cohere {
+            background: linear-gradient(135deg, #39bda7 0%, #2a9688 100%);
+            color: white;
+        }
+
+        .cohere::before {
+            background: #39bda7;
+        }
+
+        /* Stability AI Branding */
+        .stability {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .stability::before {
+            background: #8b5cf6;
+        }
+
+        /* Midjourney Branding */
+        .midjourney {
+            background: linear-gradient(135deg, #000000 0%, #333333 100%);
+            color: white;
+        }
+
+        .midjourney::before {
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+        }
+
+        /* Runway Branding */
+        .runway {
+            background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+            color: #000;
+        }
+
+        .runway::before {
+            background: #00ff88;
+        }
+
+        .model-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .company-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .model-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .company-name {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .model-description {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .model-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .model-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            backdrop-filter: blur(10px);
+        }
+
+        @media (max-width: 768px) {
+            .models-grid {
+                grid-template-columns: 1fr;
+                padding: 0 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .model-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>🤖 AI Models Dashboard</h1>
+        <p>Explore the leading AI models across different categories</p>
+    </div>
+
+    <div class="dashboard">
+        <!-- Language Models -->
+        <div class="category">
+            <h2 class="category-title">💬 Large Language Models</h2>
+            <div class="models-grid">
+                <div class="model-card openai">
+                    <div class="model-header">
+                        <div class="company-logo">🤖</div>
+                        <div>
+                            <div class="model-name">GPT-4 Turbo</div>
+                            <div class="company-name">OpenAI</div>
+                        </div>
+                    </div>
+                    <div class="model-description">
+                        Advanced language model with improved reasoning capabilities, multimodal input support, and
+                        enhanced performance across various tasks.
+                    </div>
+                    <div class="model-stats">
+                        <div class="stat">
+                            <div class="stat-value">128K</div>
+                            <div class="stat-label">Context Length</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">1.76T</div>
+                            <div class="stat-label">Parameters</div>
+                        </div>
+                    </div>
+                    <div class="model-tags">
+                        <span class="tag">Text Generation</span>
+                        <span class="tag">Code</span>
+                        <span class="tag">Reasoning</span>
+                    </div>
+                </div>
+
+                <div class="model-card google">
+                    <div class="model-header">
+                        <div class="company-logo">G</div>
+                        <div>
+                            <div class="model-name">Gemini Ultra</div>
+                            <div class="company-name">Google</div>
+                        </div>
+                    </div>
+                    <div class="model-description">
+                        Google's most capable AI model with native multimodality, advanced reasoning, and
+                        state-of-the-art performance on complex tasks.
+                    </div>
+                    <div class="model-stats">
+                        <div class="stat">
+                            <div class="stat-value">2M</div>
+                            <div class="stat-label">Context Length</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">540B</div>
+                            <div class="stat-label">Parameters</div>
+                        </div>
+                    </div>
+                    <div class="model-tags">
+                        <span class="tag">Multimodal</span>
+                        <span class="tag">Reasoning</span>
+                        <span class="tag">Code</span>
+                    </div>
+                </div>
+
+                <div class="model-card anthropic">
+                    <div class="model-header">
+                        <div class="company-logo">A</div>
+                        <div>
+                            <div class="model-name">Claude 3 Opus</div>
+                            <div class="company-name">Anthropic</div>
+                        </div>
+                    </div>
+                    <div class="model-description">
+                        Anthropic's most powerful model with exceptional performance on complex tasks, strong safety
+                        measures, and nuanced understanding.
+                    </div>
+                    <div class="model-stats">
+                        <div class="stat">
+                            <div class="stat-value">200K</div>
+                            <div class="stat-label">Context Length</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">175B</div>
+                            <div class="stat-label">Parameters</div>
+                        </div>
+                    </div>
+                    <div class="model-tags">
+                        <span class="tag">Safety</span>
+                        <span class="tag">Analysis</span>
+                        <span class="tag">Creative</span>
+                    </div>
+                </div>
+
+                <div class="model-card meta">
+                    <div class="model-header">
+                        <div class="company-logo">M</div>
+                        <div>
+                            <div class="model-name">Llama 2 70B</div>
+                            <div class="company-name">Meta</div>
+                        </div>
+                    </div>
+                    <div class="model-description">
+                        Open-source large language model with strong performance across various tasks, designed for
+                        research and commercial use.
+                    </div>
+                    <div class="model-stats">
+                        <div class="stat">
+                            <div class="stat-value">4K</div>
+                            <div class="stat-label">Context Length</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">70B</div>
+                            <div class="stat-label">Parameters</div>
+                        </div>
+                    </div>
+                    <div class="model-tags">
+                        <span class="tag">Open Source</span>
+                        <span class="tag">Commercial</span>
+                        <span class="tag">Research</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Generation -->
+        <div class="category">
+            <h2 class="category-title">🎨 Image Generation</h2>
+            <div class="models-grid">
+                <div class="model-card stability">
+                    <div class="model-header">
+                        <div class="company-logo">S</div>
+                        <div>
+                            <div class="model-name">SDXL Turbo</div>
+                            <div class="company-name">Stability AI</div>
+                        </div>
+                    </div>
+                    <div class="model-description">
+                        Advanced diffusion model for high-quality image generation with improved speed and detail,
+                        supporting various artistic styles.
+                    </div>
+                    <div class="model-stats">
+                        <div class="stat">
+                            <div class="stat-value">1024px</div>
+                            <div class="stat-label">Max Resolution</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">3.5B</div>
+                            <div class="stat-label">Parameters</div>
+                        </div>
+                    </div>
+                    <div class="model-tags">
+                        <span class="tag">Diffusion</span>
+                        <span class="tag">Art</span>
+                        <span class="tag">Fast</span>
+                    </div>
+                </div>
+
+                <div class="model-card midjourney">
+                    <div class="model-header">
+                        <div class="company-logo">🎭</div>
+                        <div>
+                            <div class="model-name">Midjourney v6</div>
+                            <div class="company-name">Midjourney</div>
+                        </div>
+                    </div>
+                    <div class="model-description">
+                        Cutting-edge AI art generator known for producing highly artistic and creative images with
+                        exceptional aesthetic quality.
+                    </div>
+                    <div class="model-stats">
+                        <div class="stat">
+                            <div class="stat-value">2048px</div>
+                            <div class="stat-label">Max Resolution</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">5.2B</div>
+                            <div class="stat-label">Parameters</div>
+                        </div>
+                    </div>
+                    <div class="model-tags">
+                        <span class="tag">Artistic</span>
+                        <span class="tag">Creative</span>
+                        <span class="tag">High Quality</span>
+                    </div>
+                </div>
+
+                <div class="model-card openai">
+                    <div class="model-header">
+                        <div class="company-logo">🎨</div>
+                        <div>
+                            <div class="model-name">DALL-E 3</div>
+                            <div class="company-name">OpenAI</div>
+                        </div>
+                    </div>
+                    <div class="model-description">
+                        Advanced image generation model with improved prompt understanding and safety features,
+                        integrated with ChatGPT.
+                    </div>
+                    <div class="model-stats">
+                        <div class="stat">
+                            <div class="stat-value">1024px</div>
+                            <div class="stat-label">Max Resolution</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">2B</div>
+                            <div class="stat-label">Parameters</div>
+                        </div>
+                    </div>
+                    <div class="model-tags">
+                        <span class="tag">Integration</span>
+                        <span class="tag">Safety</span>
+                        <span class="tag">Prompt Adherence</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Code Generation -->
+        <div class="category">
+            <h2 class="category-title">💻 Code Generation</h2>
+            <div class="models-grid">
+                <div class="model-card microsoft">
+                    <div class="model-header">
+                        <div class="company-logo">⚡</div>
+                        <div>
+                            <div class="model-name">GitHub Copilot</div>
+                            <div class="company-name">Microsoft</div>
+                        </div>
+                    </div>
+                    <div class="model-description">
+                        AI pair programmer that helps write code faster with intelligent suggestions, supports multiple
+                        programming languages and IDEs.
+                    </div>
+                    <div class="model-stats">
+                        <div class="stat">
+                            <div class="stat-value">100+</div>
+                            <div class="stat-label">Languages</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">12B</div>
+                            <div class="stat-label">Parameters</div>
+                        </div>
+                    </div>
+                    <div class="model-tags">
+                        <span class="tag">IDE Integration</span>
+                        <span class="tag">Code Completion</span>
+                        <span class="tag">Multi-Language</span>
+                    </div>
+                </div>
+
+                <div class="model-card anthropic">
+                    <div class="model-header">
+                        <div class="company-logo">🔧</div>
+                        <div>
+                            <div class="model-name">Claude 3 (Code)</div>
+                            <div class="company-name">Anthropic</div>
+                        </div>
+                    </div>
+                    <div class="model-description">
+                        Specialized version of Claude optimized for code generation, debugging, and explanation with
+                        strong safety considerations.
+                    </div>
+                    <div class="model-stats">
+                        <div class="stat">
+                            <div class="stat-value">50+</div>
+                            <div class="stat-label">Languages</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">175B</div>
+                            <div class="stat-label">Parameters</div>
+                        </div>
+                    </div>
+                    <div class="model-tags">
+                        <span class="tag">Debugging</span>
+                        <span class="tag">Explanation</span>
+                        <span class="tag">Safety</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Generation -->
+        <div class="category">
+            <h2 class="category-title">🎬 Video Generation</h2>
+            <div class="models-grid">
+                <div class="model-card runway">
+                    <div class="model-header">
+                        <div class="company-logo">▶️</div>
+                        <div>
+                            <div class="model-name">Gen-2</div>
+                            <div class="company-name">Runway</div>
+                        </div>
+                    </div>
+                    <div class="model-description">
+                        Advanced AI video generation model capable of creating high-quality videos from text prompts and
+                        image inputs.
+                    </div>
+                    <div class="model-stats">
+                        <div class="stat">
+                            <div class="stat-value">4K</div>
+                            <div class="stat-label">Max Resolution</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">18s</div>
+                            <div class="stat-label">Max Duration</div>
+                        </div>
+                    </div>
+                    <div class="model-tags">
+                        <span class="tag">Text-to-Video</span>
+                        <span class="tag">High Quality</span>
+                        <span class="tag">Creative</span>
+                    </div>
+                </div>
+
+                <div class="model-card stability">
+                    <div class="model-header">
+                        <div class="company-logo">🎥</div>
+                        <div>
+                            <div class="model-name">Stable Video</div>
+                            <div class="company-name">Stability AI</div>
+                        </div>
+                    </div>
+                    <div class="model-description">
+                        Open-source video generation model that creates smooth, coherent video sequences from static
+                        images and text descriptions.
+                    </div>
+                    <div class="model-stats">
+                        <div class="stat">
+                            <div class="stat-value">1024px</div>
+                            <div class="stat-label">Resolution</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">4s</div>
+                            <div class="stat-label">Duration</div>
+                        </div>
+                    </div>
+                    <div class="model-tags">
+                        <span class="tag">Open Source</span>
+                        <span class="tag">Image-to-Video</span>
+                        <span class="tag">Research</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
